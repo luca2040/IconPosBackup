@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -42,7 +42,7 @@ public partial class MainWindow : Window
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is IconPosBackupItem selectedItem)
         {
             long itemId = selectedItem.Id;
-            MessageBox.Show($"Selected Item ID: {itemId}");
+            Debug.WriteLine($"Selected Item ID: {itemId}");
         }
     }
 
@@ -54,8 +54,37 @@ public partial class MainWindow : Window
         {
             Items =
             [
-                new() { Title = "First Item", Id = 01 },
-                new() { Title = "Second Item", Id = 02 }
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 },
+                new() { Title = "Item", Id = 01 }
             ];
         }
     }
