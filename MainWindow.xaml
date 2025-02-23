@@ -55,17 +55,13 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ScrollBar}">
                         <Grid>
-                            <Track x:Name="PART_Track"
-                                   IsDirectionReversed="True">
-                                <Track.Thumb x:Name="track">
-                                    <Thumb x:Name="thumb"
-                                           Style="{StaticResource {x:Type Thumb}}"
-                                           Width="12"
-                                           Background="#333">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource {x:Type Thumb}}">
                                         <Thumb.Template>
                                             <ControlTemplate TargetType="{x:Type Thumb}">
                                                 <Border x:Name="thumbBorder"
-                                                        Background="#555" 
+                                                        Background="#555"
                                                         CornerRadius="5"
                                                         Padding="0">
                                                     <Rectangle/>
@@ -80,6 +76,7 @@
                                     </Thumb>
                                 </Track.Thumb>
                             </Track>
+
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
