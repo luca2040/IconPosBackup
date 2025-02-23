@@ -63,6 +63,7 @@
                                                 <Border x:Name="thumbBorder"
                                                         Background="#555"
                                                         CornerRadius="5"
+                                                        Width="12"
                                                         Padding="0">
                                                     <Rectangle/>
                                                 </Border>
