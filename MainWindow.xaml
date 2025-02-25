@@ -75,6 +75,35 @@
             </Setter>
         </Style>
 
+        <!-- Apply Button style -->
+        <Style x:Key="ApplyButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Background" Value="{StaticResource ButtonDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- MouseOver animation -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource ButtonHoverBrush}"/>
+                            </Trigger>
+
+                            <!-- Pressed animation -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource ButtonPressedBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Scrollbar Style -->
 
         <Style x:Key="ModernScrollBar" TargetType="{x:Type ScrollBar}">
@@ -320,27 +349,38 @@
                                FontStyle="Italic"
                                FontSize="15"
                                Margin="10,5,0,0"
-                               Visibility="Hidden"/>
+                               Visibility="Visible"/>
 
                     <!-- Backup selected elements -->
 
                     <Border x:Name="SelectedElementName"
+                            Visibility="Collapsed"
                             Grid.Row="1"
                             Grid.Column="0"
                             Grid.ColumnSpan="1"
                             Background="#333"
+                            BorderBrush="{StaticResource ButtonDefaultBrush}"
+                            BorderThickness="0"
                             CornerRadius="5"
                             Height="30"
                             Margin="10,5,5,10">
-                        <TextBlock Text="Selected element"
-                                   Foreground="White"
-                                   VerticalAlignment="Top"
-                                   FontStyle="Italic"
-                                   FontSize="15"
-                                   Padding="10,5,10,5"/>
+                        <TextBox Text="Selected element"
+                                 Foreground="White"
+                                 Background="Transparent"
+                                 BorderBrush="Transparent"
+                                 BorderThickness="0"
+                                 CaretBrush="#AAA"
+                                 VerticalAlignment="Top"
+                                 AcceptsReturn="False"
+                                 TextWrapping="NoWrap"
+                                 HorizontalContentAlignment="Left"
+                                 FontStyle="Italic"
+                                 FontSize="15"
+                                 Padding="10,5,10,0"/>
                     </Border>
 
                     <Button x:Name="RenameButton"
+                            Visibility="Collapsed"
                             Grid.Row="1"
                             Grid.Column="1"
                             Grid.ColumnSpan="1"
@@ -356,6 +396,59 @@
                                       Data="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160L0 416c0 53 43 96 96 96l256 0c53 0 96-43 96-96l0-96c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96c0 17.7-14.3 32-32 32L96 448c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 64z"/>
                         </Viewbox>
                     </Button>
+
+                    <Grid x:Name="BackupButtonsGrid"
+                          Grid.Row="2"
+                          Grid.Column="0"
+                          Grid.ColumnSpan="2"
+                          Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="ApplyButton"
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Width="Auto"
+                                Height="30"
+                                Margin="10,5,5,10"
+                                ToolTip="Apply"
+                                Style="{StaticResource ApplyButtonStyle}"
+                                Click="Apply_Click">
+                            <TextBlock Grid.Row="0"
+                                       Grid.Column="0"
+                                       Grid.ColumnSpan="2"
+                                       Text="Apply"
+                                       Foreground="White"
+                                       VerticalAlignment="Top"
+                                       FontWeight="Bold"
+                                       FontSize="15">
+                            </TextBlock>
+                        </Button>
+                        <Button x:Name="DeleteButton"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Width="Auto"
+                                Height="30"
+                                Margin="10,5,5,10"
+                                ToolTip="Delete"
+                                Style="{StaticResource EditButtonStyle}"
+                                Click="Delete_Click">
+                            <TextBlock Grid.Row="0"
+                                       Grid.Column="0"
+                                       Grid.ColumnSpan="2"
+                                       Text="Delete"
+                                       Foreground="{StaticResource ButtonDefaultBrush}"
+                                       VerticalAlignment="Top"
+                                       FontWeight="Normal"
+                                       FontSize="15">
+                            </TextBlock>
+                        </Button>
+                    </Grid>
                 </Grid>
             </Border>
 
@@ -366,12 +459,62 @@
                     CornerRadius="5"  
                     Background="#222">
                 <Grid>
-                    <TextBlock Text="Create new backup"
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Grid.Column="0"
+                               Text="Backup current icons position"
                                Foreground="White"
                                VerticalAlignment="Top"
                                FontStyle="Italic"
                                FontSize="15"
                                Margin="10,5,0,0"/>
+
+                    <Border x:Name="NewElementName"
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Background="#333"
+                            CornerRadius="5"
+                            Height="30"
+                            Margin="10,5,5,10">
+                        <TextBox Text="New Backup"
+                                 Foreground="White"
+                                 Background="Transparent"
+                                 BorderBrush="Transparent"
+                                 CaretBrush="#AAA"
+                                 BorderThickness="0"
+                                 VerticalAlignment="Top"
+                                 AcceptsReturn="False"
+                                 TextWrapping="NoWrap"
+                                 HorizontalContentAlignment="Left"
+                                 FontStyle="Italic"
+                                 FontSize="15"
+                                 Padding="10,5,10,5"/>
+                    </Border>
+
+                    <Button x:Name="AddButton"
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Width="30"
+                            Height="30"
+                            Margin="5,5,10,10"
+                            ToolTip="Add new backup"
+                            Style="{StaticResource EditButtonStyle}"
+                            Click="Add_Click">
+                        <Viewbox Width="20" Height="20">
+                            <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                            <Path Fill="{StaticResource ButtonDefaultBrush}"
+                                  Data="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z" Height="508" Stretch="Fill" Width="473"/>
+                        </Viewbox>
+                    </Button>
+
                 </Grid>
             </Border>
 

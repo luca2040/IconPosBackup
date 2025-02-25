@@ -44,6 +44,28 @@ public partial class MainWindow : Window
         Debug.WriteLine("Rename clicked");
     }
 
+
+    // Rename button
+    private void Apply_Click(object sender, RoutedEventArgs e)
+    {
+        Debug.WriteLine("Apply clicked");
+    }
+
+
+    // Rename button
+    private void Delete_Click(object sender, RoutedEventArgs e)
+    {
+        Debug.WriteLine("Delete clicked");
+    }
+
+
+    // Rename button
+    private void Add_Click(object sender, RoutedEventArgs e)
+    {
+        Debug.WriteLine("Add clicked");
+    }
+
+
     private void ItemList_selectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is IconPosBackupItem selectedItem)
@@ -57,13 +79,23 @@ public partial class MainWindow : Window
 
                 SelectedElementName.Visibility = Visibility.Collapsed;
                 RenameButton.Visibility = Visibility.Collapsed;
+                BackupButtonsGrid.Visibility = Visibility.Collapsed;
             }
-            else
+            else if (itemId == 2)
             {
                 SelectedElementName.Visibility = Visibility.Visible;
                 RenameButton.Visibility = Visibility.Visible;
+                BackupButtonsGrid.Visibility = Visibility.Visible;
 
                 NoElementSelectedText.Visibility = Visibility.Collapsed;
+            }
+            else if (itemId == 3)
+            {
+                SelectedElementName.BorderThickness = new Thickness(1);
+            }
+            else
+            {
+                SelectedElementName.BorderThickness = new Thickness(0);
             }
         }
     }
@@ -76,8 +108,10 @@ public partial class MainWindow : Window
         {
             Items =
             [
-                new() { Title = "Elemento 1", Id = 1 },
-                new() { Title = "Elemento 2", Id = 2 },
+                new() { Title = "Nascondi", Id = 1 },
+                new() { Title = "Vedi", Id = 2 },
+                new() { Title = "Visualizza bordo edit", Id = 3 },
+                new() { Title = "Togli bordo edit", Id = 4 },
             ];
         }
     }
