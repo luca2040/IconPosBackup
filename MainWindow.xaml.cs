@@ -37,12 +37,34 @@ public partial class MainWindow : Window
         Close();
     }
 
+
+    // Rename button
+    private void Rename_Click(object sender, RoutedEventArgs e)
+    {
+        Debug.WriteLine("Rename clicked");
+    }
+
     private void ItemList_selectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is IconPosBackupItem selectedItem)
         {
             long itemId = selectedItem.Id;
             Debug.WriteLine($"Selected Item ID: {itemId}");
+
+            if (itemId == 1)
+            {
+                NoElementSelectedText.Visibility = Visibility.Visible;
+
+                SelectedElementName.Visibility = Visibility.Collapsed;
+                RenameButton.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                SelectedElementName.Visibility = Visibility.Visible;
+                RenameButton.Visibility = Visibility.Visible;
+
+                NoElementSelectedText.Visibility = Visibility.Collapsed;
+            }
         }
     }
 
@@ -54,37 +76,8 @@ public partial class MainWindow : Window
         {
             Items =
             [
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 },
-                new() { Title = "Item", Id = 01 }
+                new() { Title = "Elemento 1", Id = 1 },
+                new() { Title = "Elemento 2", Id = 2 },
             ];
         }
     }
