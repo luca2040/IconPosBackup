@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -63,6 +62,12 @@ public partial class MainWindow : Window
     private void Add_Click(object sender, RoutedEventArgs e)
     {
         Debug.WriteLine("Add clicked");
+
+        List<RegistryReadWrite.RegistryItem> items = RegistryReadWrite.GetCurrentUserRegistryContent(@"SOFTWARE\Microsoft\Windows\Shell\Bags\1\Desktop");
+        foreach (RegistryReadWrite.RegistryItem item in items)
+        {
+            Debug.WriteLine($"Key: {item.KeyName}, Type: {item.Type}");
+        }
     }
 
 
@@ -70,7 +75,7 @@ public partial class MainWindow : Window
     {
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is IconPosBackupItem selectedItem)
         {
-            long itemId = selectedItem.Id;
+            ulong itemId = selectedItem.Id;
             Debug.WriteLine($"Selected Item ID: {itemId}");
 
             if (itemId == 1)
@@ -98,27 +103,5 @@ public partial class MainWindow : Window
                 SelectedElementName.BorderThickness = new Thickness(0);
             }
         }
-    }
-
-    public class ItemsViewModel
-    {
-        public ObservableCollection<IconPosBackupItem> Items { get; set; }
-
-        public ItemsViewModel()
-        {
-            Items =
-            [
-                new() { Title = "Nascondi", Id = 1 },
-                new() { Title = "Vedi", Id = 2 },
-                new() { Title = "Visualizza bordo edit", Id = 3 },
-                new() { Title = "Togli bordo edit", Id = 4 },
-            ];
-        }
-    }
-
-    public class IconPosBackupItem
-    {
-        public string? Title { get; set; }
-        public long Id { get; set; }
     }
 }
