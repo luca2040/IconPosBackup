@@ -10,11 +10,15 @@ namespace IconPosBackup;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private const string REGISTRY_ICONS_PATH = @"SOFTWARE\Microsoft\Windows\Shell\Bags\1\Desktop";
+
     public MainWindow()
     {
         InitializeComponent();
         Title = "Backup desktop icon position";
         DataContext = new ItemsViewModel();
+
+        DatabaseHelper.DB_PATH = "D:\\utenti\\luca\\Download\\test.sqlite";
     }
 
     // Window dragging
@@ -63,11 +67,13 @@ public partial class MainWindow : Window
     {
         Debug.WriteLine("Add clicked");
 
-        List<RegistryReadWrite.RegistryItem> items = RegistryReadWrite.GetCurrentUserRegistryContent(@"SOFTWARE\Microsoft\Windows\Shell\Bags\1\Desktop");
+        List<RegistryReadWrite.RegistryItem> items = RegistryReadWrite.GetCurrentUserRegistryContent(REGISTRY_ICONS_PATH);
         foreach (RegistryReadWrite.RegistryItem item in items)
         {
             Debug.WriteLine($"Key: {item.KeyName}, Type: {item.Type}");
         }
+
+        DatabaseHelper.EnsureDBExists();
     }
 
 
