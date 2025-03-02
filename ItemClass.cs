@@ -8,13 +8,7 @@ namespace IconPosBackup
 
         public ItemsViewModel()
         {
-            Items =
-            [
-                new() { Title = "Nascondi", Id = 1 },
-                new() { Title = "Vedi", Id = 2 },
-                new() { Title = "Visualizza bordo edit", Id = 3 },
-                new() { Title = "Togli bordo edit", Id = 4 },
-            ];
+            Items = [];
         }
     }
 

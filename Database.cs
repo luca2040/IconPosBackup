@@ -1,4 +1,5 @@
-﻿using System.Data.SQLite;
+﻿using System.Collections.ObjectModel;
+using System.Data.SQLite;
 using System.Diagnostics;
 
 namespace IconPosBackup
@@ -31,17 +32,124 @@ namespace IconPosBackup
             connection.Close();
         }
 
-        public static void InsertDataList(List<RegistryReadWrite.RegistryItem> items)
+        public static void InsertDataList(List<RegistryReadWrite.RegistryItem> items, string BackupName)
         {
+            if (items == null || items.Count == 0)
+            {
+                return;
+            }
+
             using SQLiteConnection connection = new(CONNECTION_STRING(DB_PATH));
             connection.Open();
 
-            foreach (RegistryReadWrite.RegistryItem item in items)
+            using SQLiteTransaction transaction = connection.BeginTransaction();
+
+            try
             {
-                Debug.WriteLine($"Key: {item.KeyName}, Type: {item.Type}, blob data: {item.Value}");
+                ulong partId = 0;
+
+                string partIdQuery = $"SELECT COALESCE(MAX(PART_ID), 0) FROM {TABLE_NAME};";
+
+                using (SQLiteCommand cmd = new(partIdQuery, connection))
+                {
+                    object result = cmd.ExecuteScalar();
+                    partId = (ulong)(Convert.ToInt64(result) + 1);
+                }
+
+                string insertQuery = $@"
+                    INSERT INTO {TABLE_NAME} (PART_ID, name, type, var_name, value)
+                    VALUES (@PartId, @Name, @Type, @VarName, @Value);";
+
+                using (SQLiteCommand cmd = new(insertQuery, connection))
+                {
+                    foreach (var item in items)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Parameters.AddWithValue("@PartId", partId);
+                        cmd.Parameters.AddWithValue("@Name", BackupName);
+                        cmd.Parameters.AddWithValue("@Type", item.Type);
+                        cmd.Parameters.AddWithValue("@VarName", item.KeyName);
+                        cmd.Parameters.AddWithValue("@Value", item.Value ?? DBNull.Value);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                Debug.WriteLine($"Error inserting backup in DB: {ex.Message}");
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+
+        public static ObservableCollection<IconPosBackupItem> GetItemsViewList()
+        {
+            ObservableCollection<IconPosBackupItem> returnList = [];
+
+            using SQLiteConnection connection = new(CONNECTION_STRING(DB_PATH));
+            connection.Open();
+
+            string query = $@"SELECT DISTINCT PART_ID, name FROM {TABLE_NAME};";
+
+            using (SQLiteCommand cmd = new(query, connection))
+            using (SQLiteDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    ulong partId = (ulong)reader.GetInt64(0);
+                    string name = reader.GetString(1);
+
+                    IconPosBackupItem itemToAdd = new() { Title = name, Id = partId };
+                    returnList.Add(itemToAdd);
+                }
             }
 
             connection.Close();
+            return returnList;
+        }
+
+        public static void RenameBackup(ulong backupId, string newName)
+        {
+            if (newName == null) return;
+
+            using SQLiteConnection connection = new(CONNECTION_STRING(DB_PATH));
+            connection.Open();
+
+            using SQLiteTransaction transaction = connection.BeginTransaction();
+
+            try
+            {
+                string renameQuery = $@"
+                    UPDATE {TABLE_NAME}
+                    SET name = @NewName
+                    WHERE PART_ID = @BackupId;";
+
+                using (SQLiteCommand cmd = new(renameQuery, connection))
+                {
+                    cmd.Parameters.AddWithValue("@NewName", newName);
+                    cmd.Parameters.AddWithValue("@BackupId", backupId);
+
+                    int renamedRows = cmd.ExecuteNonQuery();
+                    Debug.WriteLine($"Renamed {renamedRows} rows.");
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                Debug.WriteLine($"Error renaming backup in DB: {ex.Message}");
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
     }
 }

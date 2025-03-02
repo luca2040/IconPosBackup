@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,9 +17,13 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         Title = "Backup desktop icon position";
-        DataContext = new ItemsViewModel();
 
         DatabaseHelper.DB_PATH = "D:\\utenti\\luca\\Download\\test.sqlite";
+
+        ShowElementUI(false);
+        ShowRenameBorder(false);
+
+        ReloadElements();
     }
 
     // Window dragging
@@ -45,6 +50,8 @@ public partial class MainWindow : Window
     private void Rename_Click(object sender, RoutedEventArgs e)
     {
         Debug.WriteLine("Rename clicked");
+
+        ReloadElements();
     }
 
 
@@ -52,6 +59,8 @@ public partial class MainWindow : Window
     private void Apply_Click(object sender, RoutedEventArgs e)
     {
         Debug.WriteLine("Apply clicked");
+
+        DatabaseHelper.RenameBackup(5, "RENAMEDDD YEAHHHHHH");
     }
 
 
@@ -59,6 +68,10 @@ public partial class MainWindow : Window
     private void Delete_Click(object sender, RoutedEventArgs e)
     {
         Debug.WriteLine("Delete clicked");
+
+        List<RegistryReadWrite.RegistryItem> items = RegistryReadWrite.GetCurrentUserRegistryContent(REGISTRY_ICONS_PATH);
+
+        DatabaseHelper.InsertDataList(items, "testBackup");
     }
 
 
@@ -76,7 +89,6 @@ public partial class MainWindow : Window
         DatabaseHelper.EnsureDBExists();
     }
 
-
     private void ItemList_selectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is IconPosBackupItem selectedItem)
@@ -86,28 +98,51 @@ public partial class MainWindow : Window
 
             if (itemId == 1)
             {
-                NoElementSelectedText.Visibility = Visibility.Visible;
-
-                SelectedElementName.Visibility = Visibility.Collapsed;
-                RenameButton.Visibility = Visibility.Collapsed;
-                BackupButtonsGrid.Visibility = Visibility.Collapsed;
+                ShowElementUI(false);
             }
             else if (itemId == 2)
             {
-                SelectedElementName.Visibility = Visibility.Visible;
-                RenameButton.Visibility = Visibility.Visible;
-                BackupButtonsGrid.Visibility = Visibility.Visible;
-
-                NoElementSelectedText.Visibility = Visibility.Collapsed;
+                ShowElementUI(true);
             }
             else if (itemId == 3)
             {
-                SelectedElementName.BorderThickness = new Thickness(1);
+                ShowRenameBorder(true);
             }
             else
             {
-                SelectedElementName.BorderThickness = new Thickness(0);
+                ShowRenameBorder(false);
             }
         }
+    }
+
+    internal void ReloadElements()
+    {
+        ObservableCollection<IconPosBackupItem> newItemsList = DatabaseHelper.GetItemsViewList();
+
+        ItemsViewModel NewDataContext = new()
+        {
+            Items = newItemsList
+        };
+
+        DataContext = NewDataContext;
+    }
+
+    internal void ShowElementUI(bool show)
+    {
+        var visibleWhenShow = show ? Visibility.Visible : Visibility.Collapsed;
+        var collapseWhenShow = show ? Visibility.Collapsed : Visibility.Visible;
+
+        SelectedElementName.Visibility = visibleWhenShow;
+        RenameButton.Visibility = visibleWhenShow;
+        BackupButtonsGrid.Visibility = visibleWhenShow;
+
+        NoElementSelectedText.Visibility = collapseWhenShow;
+    }
+
+    internal void ShowRenameBorder(bool show)
+    {
+        int borderThickness = show ? 1 : 0;
+
+        SelectedElementName.BorderThickness = new Thickness(borderThickness);
     }
 }
