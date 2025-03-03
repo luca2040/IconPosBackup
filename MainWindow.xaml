@@ -223,7 +223,8 @@
                                Padding="3,0,0,0"
                                Margin="10,5,0,0"/>
 
-                    <ListView Grid.Row="1"
+                    <ListView x:Name="ElementsList"
+                              Grid.Row="1"
                               ItemsSource="{Binding Items}"  
                               SelectionChanged="ItemList_selectionChanged"
                               SelectionMode="Single" 
@@ -364,7 +365,8 @@
                             CornerRadius="5"
                             Height="30"
                             Margin="10,5,5,10">
-                        <TextBox Text="Selected element"
+                        <TextBox x:Name="SelectedElementNameText"
+                                 Text="Selected element"
                                  Foreground="White"
                                  Background="Transparent"
                                  BorderBrush="Transparent"
@@ -484,7 +486,8 @@
                             CornerRadius="5"
                             Height="30"
                             Margin="10,5,5,10">
-                        <TextBox Text="New Backup"
+                        <TextBox x:Name="NewElementNameText"
+                                 Text="New Backup"
                                  Foreground="White"
                                  Background="Transparent"
                                  BorderBrush="Transparent"

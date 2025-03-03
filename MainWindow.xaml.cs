@@ -19,6 +19,7 @@ public partial class MainWindow : Window
         Title = "Backup desktop icon position";
 
         DatabaseHelper.DB_PATH = "D:\\utenti\\luca\\Download\\test.sqlite";
+        DatabaseHelper.EnsureDBExists();
 
         ShowElementUI(false);
         ShowRenameBorder(false);
@@ -55,7 +56,7 @@ public partial class MainWindow : Window
     }
 
 
-    // Rename button
+    // Apply button
     private void Apply_Click(object sender, RoutedEventArgs e)
     {
         Debug.WriteLine("Apply clicked");
@@ -64,29 +65,29 @@ public partial class MainWindow : Window
     }
 
 
-    // Rename button
+    // Delete button
     private void Delete_Click(object sender, RoutedEventArgs e)
     {
-        Debug.WriteLine("Delete clicked");
+        IconPosBackupItem? currentlySelectedItem = (IconPosBackupItem)ElementsList.SelectedItem;
+        ulong? currentId = currentlySelectedItem?.Id;
 
-        List<RegistryReadWrite.RegistryItem> items = RegistryReadWrite.GetCurrentUserRegistryContent(REGISTRY_ICONS_PATH);
+        if (currentId == null) return;
 
-        DatabaseHelper.InsertDataList(items, "testBackup");
+        DatabaseHelper.DeleteBackup(currentId);
+
+        ReloadElements();
     }
 
 
-    // Rename button
+    // Add button
     private void Add_Click(object sender, RoutedEventArgs e)
     {
-        Debug.WriteLine("Add clicked");
+        string newElementName = NewElementNameText.Text;
 
         List<RegistryReadWrite.RegistryItem> items = RegistryReadWrite.GetCurrentUserRegistryContent(REGISTRY_ICONS_PATH);
-        foreach (RegistryReadWrite.RegistryItem item in items)
-        {
-            Debug.WriteLine($"Key: {item.KeyName}, Type: {item.Type}");
-        }
+        DatabaseHelper.InsertDataList(items, newElementName);
 
-        DatabaseHelper.EnsureDBExists();
+        ReloadElements();
     }
 
     private void ItemList_selectionChanged(object sender, SelectionChangedEventArgs e)
@@ -96,27 +97,18 @@ public partial class MainWindow : Window
             ulong itemId = selectedItem.Id;
             Debug.WriteLine($"Selected Item ID: {itemId}");
 
-            if (itemId == 1)
-            {
-                ShowElementUI(false);
-            }
-            else if (itemId == 2)
-            {
-                ShowElementUI(true);
-            }
-            else if (itemId == 3)
-            {
-                ShowRenameBorder(true);
-            }
-            else
-            {
-                ShowRenameBorder(false);
-            }
+            ShowElementUI(true);
+            ShowRenameBorder(false);
+
+            SelectedElementNameText.Text = selectedItem.Title;
         }
     }
 
     internal void ReloadElements()
     {
+        IconPosBackupItem? currentlySelectedItem = (IconPosBackupItem)ElementsList.SelectedItem;
+        ulong? currentId = currentlySelectedItem?.Id;
+
         ObservableCollection<IconPosBackupItem> newItemsList = DatabaseHelper.GetItemsViewList();
 
         ItemsViewModel NewDataContext = new()
@@ -125,6 +117,28 @@ public partial class MainWindow : Window
         };
 
         DataContext = NewDataContext;
+
+        bool viewSelectedElementUI = true;
+        if (currentId != null)
+        {
+            var selectedItem = ((ItemsViewModel)DataContext).Items.FirstOrDefault(item => item.Id == currentId);
+
+            if (selectedItem != null)
+            {
+                ElementsList.SelectedValue = selectedItem;
+            }
+            else
+            {
+                viewSelectedElementUI = false;
+            }
+        }
+        else
+        {
+            viewSelectedElementUI = false;
+        }
+
+        ShowElementUI(viewSelectedElementUI);
+        ShowRenameBorder(false);
     }
 
     internal void ShowElementUI(bool show)

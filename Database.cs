@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data.SQLite;
 using System.Diagnostics;
+using System.IO;
+using System.Transactions;
 
 namespace IconPosBackup
 {
@@ -13,6 +15,12 @@ namespace IconPosBackup
 
         public static void EnsureDBExists()
         {
+            string directory = Path.GetDirectoryName(DB_PATH) ?? "";
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             using SQLiteConnection connection = new(CONNECTION_STRING(DB_PATH));
             connection.Open();
 
@@ -114,9 +122,9 @@ namespace IconPosBackup
             return returnList;
         }
 
-        public static void RenameBackup(ulong backupId, string newName)
+        public static void RenameBackup(ulong? backupId, string newName)
         {
-            if (newName == null) return;
+            if (newName == null || backupId == null) return;
 
             using SQLiteConnection connection = new(CONNECTION_STRING(DB_PATH));
             connection.Open();
@@ -137,6 +145,42 @@ namespace IconPosBackup
 
                     int renamedRows = cmd.ExecuteNonQuery();
                     Debug.WriteLine($"Renamed {renamedRows} rows.");
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                Debug.WriteLine($"Error renaming backup in DB: {ex.Message}");
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+
+        public static void DeleteBackup(ulong? id)
+        {
+            if (id == null) return;
+
+            using SQLiteConnection connection = new(CONNECTION_STRING(DB_PATH));
+            connection.Open();
+
+            using SQLiteTransaction transaction = connection.BeginTransaction();
+
+            try
+            {
+                string renameQuery = $@"
+                    DELETE FROM {TABLE_NAME}
+                    WHERE PART_ID = @BackupId;";
+
+                using (SQLiteCommand cmd = new(renameQuery, connection))
+                {
+                    cmd.Parameters.AddWithValue("@BackupId", id);
+
+                    int renamedRows = cmd.ExecuteNonQuery();
+                    Debug.WriteLine($"Deleted {renamedRows} rows.");
                 }
 
                 transaction.Commit();
