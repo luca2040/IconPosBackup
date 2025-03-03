@@ -13,6 +13,8 @@ public partial class MainWindow : Window
 {
     private const string REGISTRY_ICONS_PATH = @"SOFTWARE\Microsoft\Windows\Shell\Bags\1\Desktop";
 
+    private string? selectedUneditedName = "";
+
     public MainWindow()
     {
         InitializeComponent();
@@ -46,11 +48,29 @@ public partial class MainWindow : Window
         Close();
     }
 
+    // When text is changed into the rename field
+    private void SelectedElementNameText_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (sender is TextBox textBox)
+        {
+            string newText = textBox.Text;
+            ShowRenameBorder(newText != selectedUneditedName);
+        }
+    }
 
     // Rename button
     private void Rename_Click(object sender, RoutedEventArgs e)
     {
-        Debug.WriteLine("Rename clicked");
+        string fieldText = SelectedElementNameText.Text;
+
+        if (fieldText == null || fieldText.Length == 0) return;
+
+        IconPosBackupItem? currentlySelectedItem = (IconPosBackupItem)ElementsList.SelectedItem;
+        ulong? currentId = currentlySelectedItem?.Id;
+
+        if (currentId == null) return;
+
+        DatabaseHelper.RenameBackup(currentId, fieldText);
 
         ReloadElements();
     }
@@ -60,8 +80,6 @@ public partial class MainWindow : Window
     private void Apply_Click(object sender, RoutedEventArgs e)
     {
         Debug.WriteLine("Apply clicked");
-
-        DatabaseHelper.RenameBackup(5, "RENAMEDDD YEAHHHHHH");
     }
 
 
@@ -84,6 +102,8 @@ public partial class MainWindow : Window
     {
         string newElementName = NewElementNameText.Text;
 
+        if (newElementName == null || newElementName.Length == 0) return;
+
         List<RegistryReadWrite.RegistryItem> items = RegistryReadWrite.GetCurrentUserRegistryContent(REGISTRY_ICONS_PATH);
         DatabaseHelper.InsertDataList(items, newElementName);
 
@@ -100,6 +120,8 @@ public partial class MainWindow : Window
             ShowElementUI(true);
             ShowRenameBorder(false);
 
+            // IMPORTANT: EXECUTE IN THIS ORDER OR IT WONT WORK
+            selectedUneditedName = selectedItem.Title;
             SelectedElementNameText.Text = selectedItem.Title;
         }
     }

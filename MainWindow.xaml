@@ -121,7 +121,7 @@
                                                 <Border x:Name="thumbBorder"
                                                         Background="#555"
                                                         CornerRadius="5"
-                                                        Width="12"
+                                                        Width="8"
                                                         Padding="0">
                                                     <Rectangle/>
                                                 </Border>
@@ -378,7 +378,8 @@
                                  HorizontalContentAlignment="Left"
                                  FontStyle="Italic"
                                  FontSize="15"
-                                 Padding="10,5,10,0"/>
+                                 Padding="10,5,10,0"
+                                 TextChanged="SelectedElementNameText_TextChanged"/>
                     </Border>
 
                     <Button x:Name="RenameButton"
