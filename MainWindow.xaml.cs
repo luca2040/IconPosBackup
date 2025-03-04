@@ -79,7 +79,17 @@ public partial class MainWindow : Window
     // Apply button
     private void Apply_Click(object sender, RoutedEventArgs e)
     {
-        Debug.WriteLine("Apply clicked");
+        IconPosBackupItem? currentlySelectedItem = (IconPosBackupItem)ElementsList.SelectedItem;
+        ulong? currentId = currentlySelectedItem?.Id;
+
+        if (currentId == null) return;
+
+        List<RegistryReadWrite.RegistryItem> readenItems = DatabaseHelper.ReadBackupItem(currentId);
+
+        foreach (RegistryReadWrite.RegistryItem item in readenItems)
+        {
+            Debug.WriteLine($"Kname: {item.KeyName} itmTYPE: {item.Type} val: {item.Value}");
+        }
     }
 
 

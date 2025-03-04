@@ -62,7 +62,10 @@ namespace IconPosBackup
             // 0 = REG_DWORD
             // 1 = REG_SZ
             // 2 = REG_BINARY
-            public int? Type { get; set; }
+
+            // i know long is useless for just 3 nums but db is like this so i dont care
+            // yes there are better solutions but this works the same
+            public long? Type { get; set; }
             public object? Value { get; set; }
         }
     }

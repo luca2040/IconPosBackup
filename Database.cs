@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
@@ -39,6 +40,82 @@ namespace IconPosBackup
 
             connection.Close();
         }
+
+        public static List<RegistryReadWrite.RegistryItem> ReadBackupItem(ulong? backupId)
+        {
+            if (backupId == null) return [];
+
+            List<RegistryReadWrite.RegistryItem> items = [];
+
+            using SQLiteConnection connection = new(CONNECTION_STRING(DB_PATH));
+            connection.Open();
+
+            string query = $@"
+                SELECT type, var_name, value 
+                FROM {TABLE_NAME} 
+                WHERE PART_ID = @BackupId;";
+
+            using (SQLiteCommand cmd = new(query, connection))
+            {
+                cmd.Parameters.AddWithValue("@BackupId", backupId);
+
+                using SQLiteDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    long varType = (long)reader["type"];
+
+                    if (reader["value"] is byte[] blobData)
+                        switch (varType)
+                        {
+                            case 0: // REG_DWORD (Integer)
+                                if (blobData != null && blobData.Length > 0)
+                                {
+                                    int value = 0;
+
+                                    string hexString = BitConverter.ToString(blobData).Replace("-", " ");
+                                    Debug.WriteLine($"Hex Data: {hexString}");
+
+                                    if (blobData.Length == 4)
+                                        value = BitConverter.ToInt32(blobData, 0);
+                                    else if (blobData.Length == 2)
+                                        value = BitConverter.ToInt16(blobData, 0);
+                                    else if (blobData.Length == 1)
+                                        value = blobData[0];
+
+                                    items.Add(new RegistryReadWrite.RegistryItem
+                                    {
+                                        Type = varType,
+                                        KeyName = reader["var_name"]?.ToString(),
+                                        Value = value
+                                    });
+                                }
+                                break;
+
+                            case 1: // REG_SZ (String)
+                                items.Add(new RegistryReadWrite.RegistryItem
+                                {
+                                    Type = varType,
+                                    KeyName = reader["var_name"]?.ToString(),
+                                    Value = blobData != null ? System.Text.Encoding.UTF8.GetString(blobData) : string.Empty
+                                });
+                                break;
+
+                            case 2: // REG_BINARY (Byte Array)
+                                items.Add(new RegistryReadWrite.RegistryItem
+                                {
+                                    Type = varType,
+                                    KeyName = reader["var_name"]?.ToString(),
+                                    Value = blobData ?? []
+                                });
+                                break;
+                        }
+
+                }
+            }
+
+            return items;
+        }
+
 
         public static void InsertDataList(List<RegistryReadWrite.RegistryItem> items, string BackupName)
         {
