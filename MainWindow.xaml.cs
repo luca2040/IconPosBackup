@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,12 +16,21 @@ public partial class MainWindow : Window
 
     private string? selectedUneditedName = "";
 
+    private const string DB_FOLDER_NAME = "IconPosBackup";
+    private const string DB_FILE_NAME = "db.sqlite";
+
+    internal static string GetDbUserPath()
+    {
+        string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        return Path.Combine(local, DB_FOLDER_NAME, DB_FILE_NAME);
+    }
+
     public MainWindow()
     {
         InitializeComponent();
         Title = "Backup desktop icon position";
 
-        DatabaseHelper.DB_PATH = "D:\\utenti\\luca\\Download\\test.sqlite";
+        DatabaseHelper.DB_PATH = GetDbUserPath();
         DatabaseHelper.EnsureDBExists();
 
         ShowElementUI(false);
