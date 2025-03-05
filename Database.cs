@@ -70,17 +70,7 @@ namespace IconPosBackup
                             case 0: // REG_DWORD (Integer)
                                 if (blobData != null && blobData.Length > 0)
                                 {
-                                    int value = 0;
-
-                                    string hexString = BitConverter.ToString(blobData).Replace("-", " ");
-                                    Debug.WriteLine($"Hex Data: {hexString}");
-
-                                    if (blobData.Length == 4)
-                                        value = BitConverter.ToInt32(blobData, 0);
-                                    else if (blobData.Length == 2)
-                                        value = BitConverter.ToInt16(blobData, 0);
-                                    else if (blobData.Length == 1)
-                                        value = blobData[0];
+                                    int value = BitConverter.ToInt32(blobData, 0);
 
                                     items.Add(new RegistryReadWrite.RegistryItem
                                     {
@@ -109,7 +99,6 @@ namespace IconPosBackup
                                 });
                                 break;
                         }
-
                 }
             }
 
@@ -154,7 +143,21 @@ namespace IconPosBackup
                         cmd.Parameters.AddWithValue("@Name", BackupName);
                         cmd.Parameters.AddWithValue("@Type", item.Type);
                         cmd.Parameters.AddWithValue("@VarName", item.KeyName);
-                        cmd.Parameters.AddWithValue("@Value", item.Value ?? DBNull.Value);
+
+                        switch (item.Type)
+                        {
+                            case 0: // REG_DWORD (Integer)
+                                byte[] byteArray = BitConverter.GetBytes((int)(item.Value ?? 0));
+                                cmd.Parameters.AddWithValue("@Value", byteArray);
+                                break;
+
+                            case 1: // REG_SZ (String)
+                            case 2: // REG_BINARY (Byte Array)
+                            default:
+                                cmd.Parameters.AddWithValue("@Value", item.Value ?? DBNull.Value);
+                                break;
+
+                        }
 
                         cmd.ExecuteNonQuery();
                     }

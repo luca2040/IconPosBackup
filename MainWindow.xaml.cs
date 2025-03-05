@@ -86,10 +86,14 @@ public partial class MainWindow : Window
 
         List<RegistryReadWrite.RegistryItem> readenItems = DatabaseHelper.ReadBackupItem(currentId);
 
+        ExplorerProcess.CloseExplorer();
+
         foreach (RegistryReadWrite.RegistryItem item in readenItems)
         {
-            Debug.WriteLine($"Kname: {item.KeyName} itmTYPE: {item.Type} val: {item.Value}");
+            if (item.KeyName != null && item.Value != null) RegistryReadWrite.SetCurrentUserValue(REGISTRY_ICONS_PATH, item.KeyName, item.Value);
         }
+
+        ExplorerProcess.RestartExplorer();
     }
 
 
