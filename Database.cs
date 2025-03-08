@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
-using System.Transactions;
 
 namespace IconPosBackup
 {
