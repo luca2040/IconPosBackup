@@ -6,7 +6,7 @@
 
 ## Downlaod
 
-_See the **release section**._
+_See the [release section](https://github.com/luca2040/IconPosBackup/releases)._
 
 ## Usage and installation
 
