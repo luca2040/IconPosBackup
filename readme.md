@@ -2,6 +2,8 @@
 
 #### _Simple and small program to backup current position, size and view settings for the icons on the desktop, and load them whenever you want._
 
+![png](https://github.com/user-attachments/assets/2b5d2788-f202-48e9-8cd2-a213de93bdeb)
+
 ## Downlaod
 
 _See the **release section**._
